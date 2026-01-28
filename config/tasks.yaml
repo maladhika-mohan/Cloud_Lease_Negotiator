@@ -1,0 +1,52 @@
+audit_task:
+  description: >
+    STAGE 1: Hard Filtering via Python/Pandas (Deterministic).
+    
+    Use filter_underutilized_vms with 'all' to apply deterministic filtering:
+    - Waste criteria: avg_cpu < 30% AND avg_ram < 30%
+    - No LLM reasoning involved - pure Python/Pandas
+    - Reduces dataset by 60-70% before LLM processing
+    
+    Report: total VMs, wasteful count, reduction percentage, chunks available.
+  expected_output: Filtering summary with statistics and chunks available
+  agent: auditor
+
+architect_task:
+  description: >
+    STAGE 2: LLM Sense Semantic Analysis (Intelligent Reasoning).
+    
+    This is where LLM Sense converts raw metrics into meaningful decisions:
+    
+    1. CLEAR previous report using clear_savings_report
+    
+    2. ANALYZE using analyze_vm_semantically 'chunk_0':
+       - Workload Classification: idle/light/moderate/heavy based on usage patterns
+       - Pattern Recognition: compute-bound, memory-bound, or balanced workload
+       - Waste Assessment: WHY resources are wasted, not just that they are
+       - Right-Sizing Logic: Calculate effective usage + 50% buffer
+       - Confidence Scoring: HIGH/MEDIUM/LOW based on headroom analysis
+    
+    3. LOG each recommendation using the provided LOG format strings:
+       - log_recommendation 'vm_id,current_size,current_cost,new_size,new_cost'
+    
+    The semantic analysis provides REASONING, not just numbers. This is the 
+    core differentiator - LLMs interpret meaning, Python handles data.
+  expected_output: Semantic analysis completed with reasoned recommendations logged
+  agent: architect
+  context:
+    - audit_task
+
+cfo_task:
+  description: >
+    STAGE 3: Python-Based Financial Aggregation (Deterministic).
+    
+    Use calculate_total_savings 'summary' for guaranteed accurate arithmetic:
+    - Reads structured CSV artifact (no LLM memory issues)
+    - Python/Pandas sums values programmatically
+    - Eliminates "lost-in-the-middle" calculation errors
+    
+    Present executive summary with monthly/annual savings projections.
+  expected_output: Executive financial summary with Python-calculated totals
+  agent: cfo
+  context:
+    - architect_task
